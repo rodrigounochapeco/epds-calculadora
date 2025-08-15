@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPDS — Calculadora de Depressão Pós‑Parto (Edimburgo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="Calculadora EPDS (Escala de Depressão Pós‑Parto de Edimburgo) com interpretação de pontuação, design moderno e acessível.">
+  <style>
+    :root{
+      --bg1:#eef6ff; 
+      --bg2:#fff6f2;
+      --primary:#6c63ff; /* violeta suave (confiança/serenidade) */
+      --primary-2:#4f46e5;
+      --teal:#2ec5b6;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --ok:#16a34a;
+      --text:#1f2937;      /* slate-800 */
+      --muted:#6b7280;     /* slate-500 */
+      --card:#ffffff;
+      --border:#e5e7eb;
+      --shadow:0 14px 40px rgba(31,41,55,.10);
+      --radius:18px;
+      --radius-sm:12px;
+      --focus:#93c5fd;
+      --maxw:1000px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% 0%, var(--bg1), transparent 70%),
+        radial-gradient(900px 600px at 90% 20%, var(--bg2), transparent 80%),
+        linear-gradient(180deg, #fff, #fff);
+    }
+
+    header.hero{
+      padding:48px 20px 24px;
+      text-align:center;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#263238;
+      background:#ecfeff;
+      border:1px solid #cffafe;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+    }
+    .badge .dot{
+      width:8px; height:8px; border-radius:50%; background:var(--teal);
+      box-shadow:0 0 0 4px rgba(46,197,182,.15);
+    }
+
+    h1{
+      margin:14px auto 8px;
+      font-size:clamp(26px, 3.2vw, 38px);
+      line-height:1.15;
+      letter-spacing:-0.01em;
+    }
+    .subtitle{
+      color:var(--muted);
+      max-width:720px;
+      margin:0 auto;
+      font-size:15px;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:24px auto 64px;
+      padding:0 20px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      background:rgba(255,255,255,.75);
+      backdrop-filter:saturate(180%) blur(8px);
+      border-bottom:1px solid var(--border);
+      padding:10px 16px;
+    }
+    .progress{
+      width:100%;
+      height:10px;
+      background:#f1f5f9;
+      border-radius:999px;
+      position:relative;
+      overflow:hidden;
+    }
+    .progress .bar{
+      position:absolute; left:0; top:0; height:100%;
+      width:0%;
+      background:linear-gradient(90deg, var(--primary), #8b5cf6, #22c1c3);
+      transition:width .35s ease;
+    }
+    .progress-label{
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:12px; color:var(--muted); margin-top:6px;
+    }
+
+    form{padding:8px 18px 24px}
+
+    fieldset{
+      border:0; margin:16px 0 10px; padding:0;
+      background:linear-gradient(180deg,#fff, #fbfdff);
+      border-radius:var(--radius-sm);
+      border:1px solid #eef2f7;
+    }
+    legend{
+      font-weight:600;
+      padding:12px 14px;
+      border-bottom:1px solid #eef2f7;
+      background:#f8fafc;
+      border-top-left-radius:var(--radius-sm);
+      border-top-right-radius:var(--radius-sm);
+    }
+    .options{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      padding:14px;
+    }
+    @media (min-width:660px){
+      .options{grid-template-columns: repeat(2, 1fr);}
+    }
+
+    /* Radios estilizados como botões */
+    .opt{
+      position:relative;
+    }
+    .opt input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .opt label{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:12px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      box-shadow:0 1px 0 rgba(0,0,0,.02);
+      cursor:pointer;
+      transition:all .2s ease;
+      min-height:48px;
+    }
+    .opt label:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(17,24,39,.08)}
+    .opt input:focus-visible + label{outline:3px solid var(--focus); outline-offset:2px}
+    .opt input:checked + label{
+      border-color:color-mix(in srgb, var(--primary) 55%, #fff);
+      background:linear-gradient(180deg, #ffffff, #f8f7ff);
+      box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+    }
+    .opt .bullet{
+      width:18px; height:18px; flex:0 0 18px;
+      border-radius:50%;
+      border:2px solid #cbd5e1;
+      margin-top:2px;
+      position:relative;
+      transition:border-color .2s;
+    }
+    .opt input:checked + label .bullet{
+      border-color:var(--primary);
+    }
+    .opt input:checked + label .bullet::after{
+      content:"";
+      position:absolute; inset:3px;
+      background:linear-gradient(180deg, var(--primary), var(--primary-2));
+      border-radius:50%;
+    }
+    .opt .text{
+      line-height:1.25;
+    }
+
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:10px 14px 18px;
+      border-top:1px solid #eef2f7;
+      background:#fafbff;
+      border-bottom-left-radius:var(--radius);
+      border-bottom-right-radius:var(--radius);
+    }
+    button, .button{
+      appearance:none; border:0; cursor:pointer;
+      font-weight:600; border-radius:12px; padding:12px 16px;
+      transition:transform .06s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .primary{
+      background:linear-gradient(180deg, var(--primary), var(--primary-2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(79,70,229,.25), inset 0 1px 0 rgba(255,255,255,.25);
+    }
+    .primary:hover{transform:translateY(-1px)}
+    .secondary{
+      background:#ffffff; border:1px solid var(--border); color:#111827;
+    }
+    .ghost{
+      background:transparent; color:var(--muted);
+    }
+    .primary:disabled{opacity:.6; cursor:not-allowed}
+    .hint{
+      font-size:13px; color:var(--muted); margin-left:auto; display:flex; align-items:center; gap:8px;
+    }
+
+    /* Resultado */
+    .result{
+      margin-top:22px;
+      display:none;
+    }
+    .result.show{display:block}
+    .result-card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      display:grid;
+      grid-template-columns: 110px 1fr;
+      gap:16px;
+      align-items:center;
+    }
+    @media (max-width:600px){
+      .result-card{grid-template-columns:1fr}
+    }
+    .gauge{
+      width:110px; height:110px;
+      border-radius:50%;
+      background:
+        conic-gradient(var(--gauge-color, var(--primary)) calc(var(--pct,0)*1%), #eef2f7 0);
+      display:grid; place-items:center;
+      position:relative;
+      box-shadow:inset 0 0 0 10px #fff;
+      border:1px solid #eef2f7;
+    }
+    .gauge .inner{
+      width:86px; height:86px; border-radius:50%;
+      background:#fff; display:grid; place-items:center;
+      box-shadow:inset 0 0 0 1px #eef2f7;
+      font-weight:700; font-size:22px;
+    }
+    .score-max{font-size:12px; color:var(--muted); margin-top:2px; text-align:center}
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border-radius:999px; padding:6px 10px; font-size:12px; font-weight:700;
+    }
+    .pill.ok{background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0}
+    .pill.warn{background:#fffbeb; color:#92400e; border:1px solid #fde68a}
+    .pill.danger{background:#fef2f2; color:#991b1b; border:1px solid #fecaca}
+
+    .summary{font-size:15px; color:#374151; margin:8px 0 0}
+    .subnote{font-size:12px; color:var(--muted); margin-top:6px}
+
+    .alert{
+      margin-top:14px; border-radius:12px; padding:12px 12px;
+      border:1px solid #fecaca; background:#fef2f2; color:#7f1d1d;
+    }
+    .alert strong{color:#991b1b}
+
+    .help-links{
+      display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;
+    }
+    .help-links a{
+      font-size:13px; color:#374151; text-decoration:none;
+      background:#ffffff; border:1px solid var(--border);
+      padding:8px 10px; border-radius:999px;
+    }
+    .help-links a:hover{border-color:#cbd5e1}
+
+    .foot{
+      margin-top:24px;
+      font-size:12px; color:var(--muted);
+      line-height:1.5;
+    }
+    .missing legend{border-color:#fecaca; background:#fff7f7}
+    .missing .options{background:#fffafa}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="badge"><span class="dot"></span> EPDS • Escala de Depressão Pós‑Parto de Edimburgo</div>
+    <h1>Avaliação EPDS com design moderno e cálculo preciso</h1>
+    <p class="subtitle">Selecione a alternativa que mais se aproxima de como você se sentiu nos últimos 7 dias. Este instrumento não substitui uma avaliação profissional.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div class="progress" aria-hidden="true">
+          <div class="bar" id="bar"></div>
+        </div>
+        <div class="progress-label">
+          <span id="progText">0 de 10 respondidas</span>
+          <span>Máx. 30 pontos</span>
+        </div>
+      </div>
+
+      <form id="epdsForm" novalidate>
+        <!-- Q1: 0-3 -->
+        <fieldset data-q="1">
+          <legend>1. Tenho conseguido rir e ver o lado engraçado das coisas</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q1" id="q1a" value="0">
+              <label for="q1a"><span class="bullet"></span><span class="text">Tanto quanto sempre consegui</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q1" id="q1b" value="1">
+              <label for="q1b"><span class="bullet"></span><span class="text">Não tanto quanto antes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q1" id="q1c" value="2">
+              <label for="q1c"><span class="bullet"></span><span class="text">Definitivamente menos do que antes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q1" id="q1d" value="3">
+              <label for="q1d"><span class="bullet"></span><span class="text">De jeito nenhum</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q2: 0-3 -->
+        <fieldset data-q="2">
+          <legend>2. Tenho aguardado com prazer as coisas</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q2" id="q2a" value="0">
+              <label for="q2a"><span class="bullet"></span><span class="text">Tanto quanto sempre</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q2" id="q2b" value="1">
+              <label for="q2b"><span class="bullet"></span><span class="text">Um pouco menos do que costumava</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q2" id="q2c" value="2">
+              <label for="q2c"><span class="bullet"></span><span class="text">Definitivamente menos do que costumava</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q2" id="q2d" value="3">
+              <label for="q2d"><span class="bullet"></span><span class="text">Quase nada</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q3: 3-0 -->
+        <fieldset data-q="3">
+          <legend>3. Tenho me culpado desnecessariamente quando as coisas dão errado</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q3" id="q3a" value="3">
+              <label for="q3a"><span class="bullet"></span><span class="text">Sim, na maior parte do tempo</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q3" id="q3b" value="2">
+              <label for="q3b"><span class="bullet"></span><span class="text">Sim, às vezes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q3" id="q3c" value="1">
+              <label for="q3c"><span class="bullet"></span><span class="text">Não com muita frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q3" id="q3d" value="0">
+              <label for="q3d"><span class="bullet"></span><span class="text">Não, nunca</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q4: 0-3 -->
+        <fieldset data-q="4">
+          <legend>4. Tenho me sentido ansiosa ou preocupada sem um bom motivo</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q4" id="q4a" value="0">
+              <label for="q4a"><span class="bullet"></span><span class="text">Não, de jeito nenhum</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q4" id="q4b" value="1">
+              <label for="q4b"><span class="bullet"></span><span class="text">Raramente</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q4" id="q4c" value="2">
+              <label for="q4c"><span class="bullet"></span><span class="text">Sim, às vezes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q4" id="q4d" value="3">
+              <label for="q4d"><span class="bullet"></span><span class="text">Sim, com muita frequência</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q5: 3-0 -->
+        <fieldset data-q="5">
+          <legend>5. Tenho me sentido assustada ou em pânico sem um bom motivo</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q5" id="q5a" value="3">
+              <label for="q5a"><span class="bullet"></span><span class="text">Sim, bastante</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q5" id="q5b" value="2">
+              <label for="q5b"><span class="bullet"></span><span class="text">Sim, às vezes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q5" id="q5c" value="1">
+              <label for="q5c"><span class="bullet"></span><span class="text">Não muito</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q5" id="q5d" value="0">
+              <label for="q5d"><span class="bullet"></span><span class="text">Não, de jeito nenhum</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q6: 3-0 -->
+        <fieldset data-q="6">
+          <legend>6. As coisas têm ficado por cima de mim (não tenho dado conta)</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q6" id="q6a" value="3">
+              <label for="q6a"><span class="bullet"></span><span class="text">Sim, na maior parte do tempo, não tenho conseguido lidar</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q6" id="q6b" value="2">
+              <label for="q6b"><span class="bullet"></span><span class="text">Sim, às vezes, tenho lidado pior do que o habitual</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q6" id="q6c" value="1">
+              <label for="q6c"><span class="bullet"></span><span class="text">Não, na maior parte do tempo tenho lidado bem</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q6" id="q6d" value="0">
+              <label for="q6d"><span class="bullet"></span><span class="text">Não, tenho lidado tão bem quanto sempre</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q7: 3-0 -->
+        <fieldset data-q="7">
+          <legend>7. Tenho estado tão infeliz que tenho tido dificuldade para dormir</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q7" id="q7a" value="3">
+              <label for="q7a"><span class="bullet"></span><span class="text">Sim, na maior parte do tempo</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q7" id="q7b" value="2">
+              <label for="q7b"><span class="bullet"></span><span class="text">Sim, às vezes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q7" id="q7c" value="1">
+              <label for="q7c"><span class="bullet"></span><span class="text">Não com muita frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q7" id="q7d" value="0">
+              <label for="q7d"><span class="bullet"></span><span class="text">Não, de jeito nenhum</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q8: 3-0 -->
+        <fieldset data-q="8">
+          <legend>8. Tenho me sentido triste ou miserável</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q8" id="q8a" value="3">
+              <label for="q8a"><span class="bullet"></span><span class="text">Sim, na maior parte do tempo</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q8" id="q8b" value="2">
+              <label for="q8b"><span class="bullet"></span><span class="text">Sim, com bastante frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q8" id="q8c" value="1">
+              <label for="q8c"><span class="bullet"></span><span class="text">Não com muita frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q8" id="q8d" value="0">
+              <label for="q8d"><span class="bullet"></span><span class="text">Não, de jeito nenhum</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q9: 3-0 -->
+        <fieldset data-q="9">
+          <legend>9. Tenho estado tão infeliz que tenho chorado</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q9" id="q9a" value="3">
+              <label for="q9a"><span class="bullet"></span><span class="text">Sim, na maior parte do tempo</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q9" id="q9b" value="2">
+              <label for="q9b"><span class="bullet"></span><span class="text">Sim, com bastante frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q9" id="q9c" value="1">
+              <label for="q9c"><span class="bullet"></span><span class="text">Apenas ocasionalmente</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q9" id="q9d" value="0">
+              <label for="q9d"><span class="bullet"></span><span class="text">Não, nunca</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Q10: 3-0 -->
+        <fieldset data-q="10">
+          <legend>10. A ideia de me machucar ocorreu a mim</legend>
+          <div class="options">
+            <div class="opt">
+              <input type="radio" name="q10" id="q10a" value="3">
+              <label for="q10a"><span class="bullet"></span><span class="text">Sim, com bastante frequência</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q10" id="q10b" value="2">
+              <label for="q10b"><span class="bullet"></span><span class="text">Às vezes</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q10" id="q10c" value="1">
+              <label for="q10c"><span class="bullet"></span><span class="text">Quase nunca</span></label>
+            </div>
+            <div class="opt">
+              <input type="radio" name="q10" id="q10d" value="0">
+              <label for="q10d"><span class="bullet"></span><span class="text">Nunca</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="primary" id="calcBtn" disabled>Calcular pontuação</button>
+          <button type="button" class="secondary" id="clearBtn">Limpar respostas</button>
+          <button type="button" class="ghost" id="printBtn">Imprimir/Salvar PDF</button>
+          <span class="hint">Preencha todas as 10 perguntas para calcular.</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-card" role="region" aria-live="polite" aria-label="Resultado EPDS">
+        <div>
+          <div class="gauge" id="gauge" aria-hidden="true"><div class="inner" id="scoreNum">0</div></div>
+          <div class="score-max">de 30</div>
+        </div>
+        <div>
+          <div id="riskPill" class="pill ok">Baixa probabilidade</div>
+          <p class="summary" id="summaryText"></p>
+          <p class="subnote">Observação: uma pontuação maior que 10 sugere que depressão leve ou maior pode estar presente. Recomenda‑se avaliação profissional.</p>
+
+          <div class="alert" id="selfHarmAlert" style="display:none;">
+            <strong>Atenção imediata:</strong> se você marcou qualquer resposta diferente de “Nunca” na pergunta 10, procure ajuda agora. 
+            Se estiver em risco imediato, ligue para o número de emergência local (por exemplo, 190/192 no Brasil, 112 em Portugal) ou procure o pronto‑socorro.
+            Você não está sozinha.
+            <div class="help-links">
+              <a href="https://www.cvv.org.br/" target="_blank" rel="noopener">CVV 188 (Brasil)</a>
+              <a href="https://www.sns24.gov.pt/servico/saude-24/" target="_blank" rel="noopener">SNS 24 (Portugal)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        • Esta escala é um rastreio, não um diagnóstico. Leve seu resultado a um(a) profissional de saúde (médico(a), obstetra, psiquiatra ou psicólogo(a)).<br>
+        • Direitos autorais: Cox JL, Holden JM, Sagovsky R. British Journal of Psychiatry (1987). Escala de Depressão Pós‑Parto de Edimburgo (EPDS).
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('epdsForm');
+    const calcBtn = document.getElementById('calcBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const printBtn = document.getElementById('printBtn');
+    const bar = document.getElementById('bar');
+    const progText = document.getElementById('progText');
+    const resultWrap = document.getElementById('result');
+    const gauge = document.getElementById('gauge');
+    const scoreNum = document.getElementById('scoreNum');
+    const riskPill = document.getElementById('riskPill');
+    const summaryText = document.getElementById('summaryText');
+    const selfHarmAlert = document.getElementById('selfHarmAlert');
+
+    const totalQuestions = 10;
+    const maxScore = 30;
+
+    function getAnsweredCount(){
+      let count = 0;
+      for(let i=1; i<=totalQuestions; i++){
+        const checked = form.querySelector(`input[name="q${i}"]:checked`);
+        if(checked) count++;
+      }
+      return count;
+    }
+
+    function updateProgress(){
+      const answered = getAnsweredCount();
+      const pct = Math.round((answered/totalQuestions)*100);
+      bar.style.width = pct + '%';
+      progText.textContent = `${answered} de ${totalQuestions} respondidas`;
+      calcBtn.disabled = answered !== totalQuestions;
+    }
+
+    function validateMissing(){
+      // Destaca fieldsets faltando
+      const missing = [];
+      for(let i=1; i<=totalQuestions; i++){
+        const fs = form.querySelector(`fieldset[data-q="${i}"]`);
+        const checked = form.querySelector(`input[name="q${i}"]:checked`);
+        fs.classList.toggle('missing', !checked);
+        if(!checked) missing.push(fs);
+      }
+      if(missing.length){
+        missing[0].scrollIntoView({behavior:'smooth', block:'center'});
+      }
+      return missing.length === 0;
+    }
+
+    function interpret(score){
+      // Interpretação alinhada às recomendações de uso da EPDS
+      // >10 sugere depressão leve ou maior — recomenda-se avaliação.
+      let level = 'ok';
+      let label = 'Baixa probabilidade';
+      let text = 'Sua pontuação está abaixo do ponto de corte usual. Ainda assim, observe seus sintomas; se persistirem, converse com um(a) profissional.';
+      if(score >= 10 && score <= 12){
+        level = 'warn';
+        label = 'Risco aumentado (possível depressão)';
+        text = 'Sua pontuação sugere possível depressão. É aconselhável buscar uma avaliação com um(a) profissional de saúde.';
+      }
+      if(score >= 13){
+        level = 'danger';
+        label = 'Alto risco (provável depressão)';
+        text = 'Sua pontuação é compatível com provável depressão pós‑parto. Procure avaliação clínica o quanto antes.';
+      }
+      return {level, label, text};
+    }
+
+    function setPill(level, label){
+      riskPill.className = 'pill ' + (level === 'ok' ? 'ok' : level === 'warn' ? 'warn' : 'danger');
+      riskPill.textContent = label;
+    }
+
+    function setGauge(score){
+      const pct = (score/maxScore)*100;
+      gauge.style.setProperty('--pct', pct);
+      let color = 'var(--primary)';
+      if(score >= 13) color = 'var(--danger)';
+      else if(score >= 10) color = 'var(--warning)';
+      else color = 'var(--teal)';
+      gauge.style.setProperty('--gauge-color', color);
+      scoreNum.textContent = score;
+    }
+
+    function calculate(){
+      if(!validateMissing()) return;
+
+      let total = 0;
+      for(let i=1; i<=totalQuestions; i++){
+        const v = parseInt(form.querySelector(`input[name="q${i}"]:checked`).value,10);
+        total += v;
+      }
+      // Q10 alerta
+      const q10 = parseInt(form.querySelector('input[name="q10"]:checked').value,10);
+      selfHarmAlert.style.display = q10 > 0 ? 'block' : 'none';
+
+      const {level, label, text} = interpret(total);
+      setPill(level, label);
+      summaryText.textContent = text;
+      setGauge(total);
+
+      resultWrap.classList.add('show');
+      resultWrap.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    function clearAll(){
+      form.reset();
+      updateProgress();
+      document.querySelectorAll('fieldset').forEach(f => f.classList.remove('missing'));
+      resultWrap.classList.remove('show');
+      selfHarmAlert.style.display = 'none';
+    }
+
+    form.addEventListener('change', updateProgress);
+    calcBtn.addEventListener('click', calculate);
+    clearBtn.addEventListener('click', clearAll);
+    printBtn.addEventListener('click', () => window.print());
+
+    // Init
+    updateProgress();
+  </script>
+</body>
+</html>
